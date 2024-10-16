@@ -68,7 +68,7 @@ jobs:
     - name: Push tag with digest ${{ env.OPERATOR_IMAGE_DIGEST }}
       uses: redhat-actions/push-to-registry@v2
       with:
-        image: ${{ steps.build-operator.outputs.image }}
+        image: ${{ steps.build.outputs.image }}
         tags: ${{ env.OPERATOR_IMAGE_DIGEST }}
         registry: ${{ env.imageregistry }}/${{ env.imagenamespace }}
         username: ${{ secrets.QUAY_USERNAME }}
