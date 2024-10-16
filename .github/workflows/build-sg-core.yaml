@@ -1,0 +1,75 @@
+# We tag each operator with 3 tags:
+# 1) Git commit sha: This is useful to lookup the bundle images with SHA's
+#    based on the gomod entries
+# 2) the branch name, or 'latest' tag
+# 3) the digest: this is useful because we reference images by SHA256 digests
+#    in the bundles now for offline/air gapped installation support
+
+name: sg-core image builder
+
+on:
+  push:
+    branches:
+      - '*'
+
+env:
+  imageregistry: 'quay.io'
+  imagenamespace: ${{ secrets.IMAGENAMESPACE || secrets.QUAY_USERNAME }}
+  latesttag: latest
+
+jobs:
+
+  build:
+    name: Build sg-core image using buildah
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v7
+
+    - name: Set latest tag for non main branch
+      if: "${{ steps.branch-name.outputs.current_branch != 'main' }}"
+      run: |
+        echo "latesttag=${{ steps.branch-name.outputs.current_branch }}-latest" >> $GITHUB_ENV
+
+    - name: Buildah Action
+      id: build
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: sg-core
+        tags: ${{ env.latesttag }} ${{ github.sha }}
+        containerfiles: |
+          ./build/Dockerfile
+
+    - name: Push sg-core To ${{ env.imageregistry }}
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build.outputs.image }}
+        tags: ${{ steps.build.outputs.tags }}
+        registry: ${{ env.imageregistry }}/${{ env.imagenamespace }}
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+        digestfile: digest.txt
+
+    - name: Set IMAGE_DIGEST for sg-core and tag
+      shell: bash
+      run: |
+        DIGEST=$(cat digest.txt | sed -e 's|sha256:||')
+        echo "IMAGE_DIGEST=$DIGEST" >> $GITHUB_ENV
+        podman tag "localhost/${IMAGE}:${GITHUB_SHA}" "${REGISTRY}/${IMAGE}:${DIGEST}"
+      env:
+        REGISTRY:  ${{ env.imageregistry }}/${{ env.imagenamespace }}
+        IMAGE: sg-core
+        GITHUB_SHA: ${{ github.sha }}
+
+    - name: Push tag with digest ${{ env.OPERATOR_IMAGE_DIGEST }}
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-operator.outputs.image }}
+        tags: ${{ env.OPERATOR_IMAGE_DIGEST }}
+        registry: ${{ env.imageregistry }}/${{ env.imagenamespace }}
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
