@@ -69,7 +69,7 @@ jobs:
       uses: redhat-actions/push-to-registry@v2
       with:
         image: sg-core
-        tags: ${{ env.OPERATOR_IMAGE_DIGEST }}
+        tags: ${{ env.IMAGE_DIGEST }}
         registry: ${{ env.imageregistry }}/${{ env.imagenamespace }}
         username: ${{ secrets.QUAY_USERNAME }}
         password: ${{ secrets.QUAY_PASSWORD }}
