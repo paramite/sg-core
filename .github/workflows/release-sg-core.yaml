@@ -20,7 +20,7 @@ jobs:
     - name: Tag image
       uses: tinact/docker.image-retag@1.0.2
       with:
-        image_name: ${{ env.imagenamespace }}/
+        image_name: ${{ env.imagenamespace }}/sg-core
         image_old_tag: ${{ github.sha }}
         image_new_tag: ${{ github.event.release.tag_name }}
         registry: ${{ env.imageregistry }}
