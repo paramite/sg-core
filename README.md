@@ -4,7 +4,7 @@
 Default plugins exist in /plugins. Plugins can also be hosted as separate projects.
 
 ## Types
-### Transport
+### Transport 
 Transports listen on an external protocol for incoming messages.
 
 ### Handler
