@@ -1,6 +1,6 @@
-# Generate collectd JSON AMQP messages
+# Generate collectd JSON AMQP or Ceilometer or Rsyslog messages
 
-Connects to a QDR.  Generates collectd JSON formated metrics.  Sends the metrics to the bridge.
+Connects to a QDR.  Generates either collectd JSON formated metrics or Ceilometer metrics or Rsyslog logs.  Sends the data to the bridge.
 
 ## Build
 
