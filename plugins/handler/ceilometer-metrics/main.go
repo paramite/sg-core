@@ -254,9 +254,10 @@ func genLabels(m ceilometer.Metric, publisher string, cNameShards []string) ([]s
 		index++
 	}
 
-	if m.ResourceMetadata.InstanceHost != "" {
+	// Represent the HostID
+	if m.ResourceMetadata.Host != "" {
 		labelKeys[index] = "vm_instance"
-		labelVals[index] = m.ResourceMetadata.InstanceHost
+		labelVals[index] = m.ResourceMetadata.Host
 		index++
 	}
 
